@@ -43,16 +43,33 @@ public class State {
 	}
 	
 	//methods - other
-	public static boolean equals(State s1, State s2){		//TEST MEEEEEEEEE
+	public static boolean stateEquals(State s1, State s2){//compares 2 full states for equality
 		for(int i=0; i<8; i++){
 			for (int j=0; j<8; j++){
-				if(!s1.getState()[i][j].equals(s2.getState()[i][j])){
+				if(!State.stackEquals(s1.getState()[i][j],s2.getState()[i][j])){
+					System.out.println("not equal");
 					return false;
 				}
 			}
 		}
+		System.out.println("equal");
 		return true;
 	}
+	private static boolean stackEquals(ArrayDeque<Boolean> s1, ArrayDeque<Boolean> s2){
+		//helper for stateEquals, compares individual stacks of chips
+		if (s1.size() != s2.size()){ //if different # of elements, false
+			return false;
+		}
+		Iterator<Boolean> s1_itr = s1.iterator();
+		Iterator<Boolean> s2_itr = s2.iterator();
+		while (s1_itr.hasNext() && s2_itr.hasNext()){ //if any 2 elements are diff, false
+			if (s1_itr.next() != s2_itr.next()){
+				return false;
+			}
+		} // else must be true
+		return true;
+	}
+	
 	public void moveStack(boolean player, int x1, int y1, int x2, int y2, int n){
 		//source:(x1,y1), destination:(x2,y2), num_moved: n
 
@@ -91,17 +108,54 @@ public class State {
 		Random rand = new Random();
 		redScore   = 0;
 		greenScore = 0;
-		
+		int numGreenTiles=0, numRedTiles=0;;
 		for (int i=0; i<8; i++){
 			for (int j =0; j<8; j++){
 				state[i][j].clear();
 				if(i>0 && i<7 && j>0 && j<7){
-					state[i][j].add(rand.nextBoolean());
-					state[i][j].add(rand.nextBoolean());
-					state[i][j].add(rand.nextBoolean());
+					if (rand.nextBoolean()){
+						if(numGreenTiles < 18){
+							state[i][j].add(true);
+							numGreenTiles++;
+						} else {
+							state[i][j].add(false);
+							numRedTiles++;
+						}
+					}  else {
+						if (numRedTiles< 18){
+							state[i][j].add(false);
+							numRedTiles++;
+						} else {
+							state[i][j].add(true);
+							numGreenTiles++;
+						}	
+					} 
+//					state[i][j].add(rand.nextBoolean());
+//					state[i][j].add(rand.nextBoolean());
+//					state[i][j].add(rand.nextBoolean());
+//					state[i][j].add(rand.nextBoolean());
+//					state[i][j].add(rand.nextBoolean());
 				}
 			}
 		}
 	}
 	
+	public void sampleStart(){
+		//Set scores to 0-0 and place a single chip in each stack of a random color
+		redScore   = 0;
+		greenScore = 0;
+		
+		for (int i=0; i<8; i++){
+			for (int j =0; j<8; j++){
+				state[i][j].clear();
+				if(i>0 && i<7 && j>0 && j<7){
+					if(i%4>2 || i%4==0){
+						state[i][j].add(true);
+					} else {
+						state[i][j].add(false);
+					}
+				}
+			}
+		}
+	}
 };

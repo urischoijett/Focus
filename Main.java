@@ -6,6 +6,7 @@ public class Main {
 		Controller  c = new Controller(g);
 		
 	}
+	//NB for all: true = green, false = red
 	
 	
 

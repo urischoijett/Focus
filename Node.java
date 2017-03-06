@@ -21,7 +21,7 @@ public class Node {
 	
 	private boolean isValid(State testState){
 		for (int i=0; i<Node.history.size(); i++){
-			if (State.equals(testState, Node.history.get(i))){
+			if (State.stateEquals(testState, Node.history.get(i))){
 				return false;
 			}
 		}
