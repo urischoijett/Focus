@@ -17,10 +17,10 @@ public class State {
 			}
 		}
 	}
-	public State(ArrayDeque<Boolean>[][] s){
+	public State(State s){
 		for (int i=0; i<8; i++){
 			for (int j =0; j<8; j++){
-				state[i][j] = s[i][j].clone();
+				state[i][j] = s.getSquareContent(i, j).clone();
 			}
 		}
 	}
@@ -41,22 +41,38 @@ public class State {
 	public ArrayDeque<Boolean>[][] getState(){
 		return state;
 	}
+	public static boolean outOfBounds(int x, int y){ //test this
+		if (x<0 || x>7 || y<0 || y>7) { //outside the board
+			return true;
+		}
+		if (x==0 && y<2 || x==0 && y>5){ //column 1
+			return true;
+		}
+		if (x==1 && y<1 || x==1 && y>6){ //column 2
+			return true;
+		}
+		if (x==6 && y<1 || x==6 && y>6){ //column 7
+			return true;
+		}
+		if (x==7 && y<2 || x==7 && y>5){ //column 8
+			return true;
+		}
+		return false;
+	}
 	
 	//methods - other
 	public static boolean stateEquals(State s1, State s2){//compares 2 full states for equality
 		for(int i=0; i<8; i++){
 			for (int j=0; j<8; j++){
 				if(!State.stackEquals(s1.getState()[i][j],s2.getState()[i][j])){
-					System.out.println("not equal");
 					return false;
 				}
 			}
 		}
-		System.out.println("equal");
 		return true;
 	}
-	private static boolean stackEquals(ArrayDeque<Boolean> s1, ArrayDeque<Boolean> s2){
-		//helper for stateEquals, compares individual stacks of chips
+	
+	private static boolean stackEquals(ArrayDeque<Boolean> s1, ArrayDeque<Boolean> s2){ //helper for stateEquals, compares individual stacks of chips
 		if (s1.size() != s2.size()){ //if different # of elements, false
 			return false;
 		}
@@ -86,7 +102,7 @@ public class State {
 		for (int i=0; i<n; i++){
 			state[x2][y2].addFirst(movers.pop());
 		}
-//		 && !
+		
 		//score any points
 		while(state[x2][y2].size()>5){
 			if (state[x2][y2].pollLast()){
@@ -99,7 +115,6 @@ public class State {
 				}
 			}
 		}
-
 	}
 	
 	public void randomStart(){
@@ -134,7 +149,6 @@ public class State {
 //					state[i][j].add(rand.nextBoolean());
 //					state[i][j].add(rand.nextBoolean());
 //					state[i][j].add(rand.nextBoolean());
-//					state[i][j].add(rand.nextBoolean());
 				}
 			}
 		}
@@ -149,13 +163,15 @@ public class State {
 			for (int j =0; j<8; j++){
 				state[i][j].clear();
 				if(i>0 && i<7 && j>0 && j<7){
-					if(i%4>2 || i%4==0){
-						state[i][j].add(true);
-					} else {
-						state[i][j].add(false);
-					}
+					state[i][j].add(true);
+//					if(i%4>2 || i%4==0){
+//						state[i][j].add(true);
+//					} else {
+//						state[i][j].add(false);
+//					}
 				}
 			}
 		}
 	}
+
 };

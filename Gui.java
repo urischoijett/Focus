@@ -152,7 +152,6 @@ public class Gui extends JFrame{
 	}
 	
 	private void update(){
-		System.out.println("redrawing");
 		redScore.setText(String.valueOf(display.getRedScore()));
 		greenScore.setText(String.valueOf(display.getGreenScore()));
 		for (int i=0; i<8; i++){
