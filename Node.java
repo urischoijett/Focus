@@ -1,22 +1,47 @@
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 
 public class Node {
 	
 	public static ArrayList<State> history = new ArrayList<State>();
 	
-	Node parent;
 	ArrayList<Node> children = new ArrayList<Node>();
 	private State s;
-	
+	public boolean expanded = false;
+//	Node parent;
 	
 	public Node(State state){
 		s = state;
 	}
-	public Node(State state, Node par){
-		s = state;
-		parent = par;
+//	public Node(State state, Node par){
+//		s = state;
+//		parent = par;
+//	}
+	
+	public Node clone(){
+		Node newNode = new Node(new State(this.getState()));
+		
+		return newNode;
+	}
+	
+	public int greenMiniMaxScore(){  //green tries to acquire max number of controlling tiles
+		int score = 0;
+		for(int i=0; i<8; i++){
+			for (int j=0; j<8; j++){
+				if (s.getSquareContent(i, j).peekFirst()){
+					score++;
+				} else 
+					score--;
+			}
+		}
+		return score;
+	}
+	
+	public int redMinChild(){ //red tries to earn the most points
+		int score = s.getRedScore()-s.getGreenScore();
+		return score;
 	}
 	
 	public State getState(){
@@ -31,17 +56,23 @@ public class Node {
 		}
 		return true;	
 	}
-	public boolean hasLegalMove(){ //use only after expanding
-		if (children.size() == 0){
-			return false;
+	public boolean hasLegalMove(boolean player){ //use only after expanding
+		for(int i=0; i<8; i++){
+			for (int j=0; j<8; j++){
+				if (s.getSquareContent(i, j).peekFirst() == player){
+					return true;
+				}
+			}
 		}
-		return true;
+		return false;
 	}
+	
 	public int expandNode(boolean player){ //true for green moves, false for red
 		State 				newState;
 		ArrayDeque<Boolean> currStack;
 		Node 				nextNode;
 		
+		expanded = true;
 		for(int i=0; i<8; i++){
 			for (int j=0; j<8; j++){  //for each square
 				
@@ -60,7 +91,7 @@ public class Node {
 								newState = new State(s);
 								newState.moveStack(player, i, j, i, j+d_mov, t_mov);
 								if (isValid(newState)){
-									nextNode = new Node(newState, this);
+									nextNode = new Node(newState);
 									children.add(nextNode);
 									history.add(newState);									
 								}
@@ -71,7 +102,7 @@ public class Node {
 								newState = new State(s);
 								newState.moveStack(player, i, j, i+d_mov, j, t_mov);
 								if (isValid(newState)){
-									nextNode = new Node(newState, this);
+									nextNode = new Node(newState);
 									children.add(nextNode);
 									history.add(newState);
 								}
@@ -82,7 +113,7 @@ public class Node {
 								newState = new State(s);
 								newState.moveStack(player, i, j, i, j-d_mov, t_mov);
 								if (isValid(newState)){
-									nextNode = new Node(newState, this);
+									nextNode = new Node(newState);
 									children.add(nextNode);
 									history.add(newState);
 								}
@@ -93,7 +124,7 @@ public class Node {
 								newState = new State(s);
 								newState.moveStack(player, i, j, i-d_mov, j, t_mov);
 								if (isValid(newState)){
-									nextNode = new Node(newState, this);
+									nextNode = new Node(newState);
 									children.add(nextNode);
 									history.add(newState);
 								}
