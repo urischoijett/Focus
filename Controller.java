@@ -52,7 +52,7 @@ public class Controller {
 		
 		return newMove;
 	}
-	
+	//http://people.scs.carleton.ca/~oommen/Courses/COMP4106Winter17/AICh04IntelGamePlaying.pdf
 	private HashMap<Integer, Node> greenMax (Node n, int a, int b, int depth){
 		
 		HashMap<Integer, Node> nodevals = new HashMap();
@@ -90,7 +90,7 @@ public class Controller {
 	
 	
 	public void testMove(){
-		//this is adding children of both types to each child of currnode!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		
 		Node temp, temp_winner = null;
 		currNode.expandNode(activePlayer);
 		int max_val=-9999;
