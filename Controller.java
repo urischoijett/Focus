@@ -1,10 +1,12 @@
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class Controller {
 	public Gui 	 boardGui;
 	private Node currNode, testNode;
-	int i=0;
-	boolean activePlayer = false;
+	boolean activePlayer = true;
 	
 	public Controller(Gui g){
 		boardGui = g;
@@ -23,15 +25,15 @@ public class Controller {
 
 	}
 	public void playGame(){
-		boolean activePlayer = true; //green goes first
+//		boolean activePlayer = true; //green goes first
 		Node nextNode;
 
 		while(currNode.hasLegalMove(activePlayer)){
 			
 			if(activePlayer){
-				nextNode = getGreenMove();
+				nextNode = getGreenMove(currNode);
 			} else {
-				nextNode = getRedMove();
+				nextNode = getRedMove(currNode);
 			}
 			System.out.println("moving " +activePlayer);
 			boardGui.setDisplay(nextNode.getState()); //send to gui
@@ -40,96 +42,142 @@ public class Controller {
 		}
 		
 	}
+	public void testMove(){
+		Node nextNode;
+		
+		if(activePlayer){
+			nextNode = getGreenMove(currNode);
+		} else {
+			nextNode = getRedMove(currNode);
+		}
+
+		boardGui.setDisplay(nextNode.getState()); //send to gui
+		activePlayer = !activePlayer;			  //switch active player
+		currNode = nextNode;
+	}
 	
 	private Node getGreenMove(Node currState){
 		Node newMove;
 		int alpha = Integer.MIN_VALUE;
 		int beta  = Integer.MAX_VALUE;
 		int depth = 2;
+		int bestScore = Integer.MIN_VALUE;
 		
-		HashMap<Integer, Node> bestMove = new HashMap();
-		bestMove.putAll(greenMax(currState, alpha, beta, depth));
+		ArrayList<Node> futures = currState.getChildren(true);
+		HashMap<Integer, Node> minimaxMoves = new HashMap<Integer, Node>(); // how to generate hashmap with minimax key values
+		
+		for(int i=0; i<futures.size(); i++){
+			minimaxMoves.put(greenMin(futures.get(i), alpha, beta, depth), futures.get(i));
+		}
+		
+		bestScore = Collections.max(minimaxMoves.keySet());
+		
+//		Iterator<Integer> itr = minimaxMoves.keySet().iterator();
+//		while (itr.hasNext()){
+//			if () 
+//		}
+		//select random move with top score?
+		newMove = minimaxMoves.get(bestScore);
 		
 		return newMove;
 	}
 	//http://people.scs.carleton.ca/~oommen/Courses/COMP4106Winter17/AICh04IntelGamePlaying.pdf
-	private HashMap<Integer, Node> greenMax (Node n, int a, int b, int depth){
-		
-		HashMap<Integer, Node> nodevals = new HashMap();
+	private int greenMax (Node n, int a, int b, int depth){
 		int bestScore = Integer.MIN_VALUE;
-		Node bestNode, tempNode;
-		int tempScore;
 		
-		if (!n.expanded){
-			n.expandNode(true);
+		ArrayList<Node> futures = n.getChildren(true);
+		
+		if (depth==0 || !n.hasLegalMove(true)){ // cutoff conditions
+			return n.greenMiniMaxScore();
+		}
+		for (int i=0; i<futures.size(); i++){
+			bestScore = Integer.max(bestScore, greenMin(futures.get(i), a, b, depth-1));
+			if (bestScore >= b){
+				return bestScore;
+			}
+			a = Integer.max(a, bestScore);
 		}
 		
-		if (depth==0 || !n.hasLegalMove(true)){
-			nodevals.put(n.greenMiniMaxScore(), n);
-			return nodevals;
-		}
-		
-		for (int i=0; i<n.children.size(); i++){
-			
-		}
-		
-		
-		return nodevals;
+		return bestScore;
 	}
-	private HashMap<Integer, Node> greenMin (Node n, int a, int b, int depth){
-		HashMap<Integer, Node> nodevals = new HashMap();
-		return nodevals;
+	private int greenMin (Node n, int a, int b, int depth){
+		int bestScore = Integer.MAX_VALUE;
+		ArrayList<Node> futures = n.getChildren(true);
+		
+		if (depth==0 || !n.hasLegalMove(false)){
+			return n.greenMiniMaxScore();
+		}
+		
+		for (int i=0; i<futures.size(); i++){
+			bestScore = Integer.min(bestScore, greenMax(futures.get(i), a, b, depth-1));
+			if (bestScore <= a){
+				return bestScore;
+			}
+			b = Integer.min(b, bestScore);
+		}
+		return bestScore;
 	}
 	
-	private Node getRedMove(){
-		Node newMove = new Node(new State());
+	private Node getRedMove(Node currState){
+		Node newMove;
+		int alpha = Integer.MIN_VALUE;
+		int beta  = Integer.MAX_VALUE;
+		int depth = 2;
+		int bestScore = Integer.MIN_VALUE;
 		
+		ArrayList<Node> futures = currState.getChildren(false);
+		HashMap<Integer, Node> minimaxMoves = new HashMap(); // how to generate hashmap with minimax key values
+		
+		for(int i=0; i<futures.size(); i++){
+			minimaxMoves.put(redMin(futures.get(i), alpha, beta, depth), futures.get(i));
+		}
+		
+		bestScore = Collections.max(minimaxMoves.keySet());
+		
+//		Iterator<Integer> itr = minimaxMoves.keySet().iterator();
+//		while (itr.hasNext()){
+//			if () 
+//		}
+		
+		newMove = minimaxMoves.get(bestScore);
 		
 		return newMove;
 	}
-	
-	
-	public void testMove(){
+	//http://people.scs.carleton.ca/~oommen/Courses/COMP4106Winter17/AICh04IntelGamePlaying.pdf
+	private int redMax (Node n, int a, int b, int depth){
+		int bestScore = Integer.MIN_VALUE;
 		
-		Node temp, temp_winner = null;
-		currNode.expandNode(activePlayer);
-		int max_val=-9999;
-		int temp_val;
-				
-		if (activePlayer) { //greens turn
-			for(int i=0; i<currNode.children.size(); i++){
-				temp = currNode.children.get(i);
-				temp.children.clear();
-				temp.expandNode(!activePlayer);
-				temp_val = temp.redMinChild();
-				if (max_val < temp_val){
-					max_val = temp_val;
-					temp_winner = temp;
-				}
+		ArrayList<Node> futures = n.getChildren(false);
+		
+		if (depth==0 || !n.hasLegalMove(true)){ // cutoff conditions
+			return n.redMiniMaxScore();
+		}
+		for (int i=0; i<futures.size(); i++){
+			bestScore = Integer.max(bestScore, redMin(futures.get(i), a, b, depth-1));
+			if (bestScore >= b){
+				return bestScore;
 			}
-			
-		} else {			//reds turn
-			for(int i=0; i<currNode.children.size(); i++){
-				temp = currNode.children.get(i);
-				temp.children.clear();
-				temp.expandNode(!activePlayer);
-				temp_val = temp.redMinChild();
-				if (max_val < temp_val){
-					max_val = temp_val;
-					temp_winner = temp;
-				}
-			}	
+			a = Integer.max(a, bestScore);
 		}
-		currNode = temp_winner;
-
-		boardGui.setDisplay(currNode.getState()); //send to gui
-		activePlayer = !activePlayer;			  //switch active player
 		
-		
-		if (activePlayer){
-			System.out.println("No legal moves left for green");
-		} else {
-			System.out.println("No legal moves left for red");
-		}
+		return bestScore;
 	}
+	private int redMin (Node n, int a, int b, int depth){
+		int bestScore = Integer.MAX_VALUE;
+		ArrayList<Node> futures = n.getChildren(true);
+		
+		if (depth==0 || !n.hasLegalMove(true)){
+			return n.redMiniMaxScore();
+		}
+		
+		for (int i=0; i<futures.size(); i++){
+			bestScore = Integer.min(bestScore, redMax(futures.get(i), a, b, depth-1));
+			if (bestScore <= a){
+				return bestScore;
+			}
+			b = Integer.min(b, bestScore);
+		}
+		return bestScore;
+	}
+	
 };
