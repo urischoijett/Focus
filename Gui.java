@@ -170,7 +170,7 @@ public class Gui extends JFrame{
 	}
 	
 	private void playButtonHandler(){
-		ctrl.playGame();
+//		ctrl.playGame();
 	}
 	
 	private void setBoardBoundries(){

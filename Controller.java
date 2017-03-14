@@ -44,16 +44,25 @@ public class Controller {
 	}
 	public void testMove(){
 		Node nextNode;
-		
-		if(activePlayer){
-			nextNode = getGreenMove(currNode);
+		if (currNode.hasLegalMove(activePlayer)){
+			if(activePlayer){
+				nextNode = getGreenMove(currNode);
+			} else {
+				nextNode = getRedMove(currNode);
+				
+			}
+			boardGui.setDisplay(nextNode.getState()); //send to gui
+			activePlayer = !activePlayer;			  //switch active player
+			currNode = nextNode;
 		} else {
-			nextNode = getRedMove(currNode);
+			System.out.print("Game over, winner is ");
+			if (currNode.getState().getGreenScore()> currNode.getState().getRedScore()){
+				System.out.print("green player");
+			} else {
+				System.out.print("red player");
+			}
 		}
-
-		boardGui.setDisplay(nextNode.getState()); //send to gui
-		activePlayer = !activePlayer;			  //switch active player
-		currNode = nextNode;
+		
 	}
 	
 	private Node getGreenMove(Node currState){
