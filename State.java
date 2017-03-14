@@ -18,6 +18,8 @@ public class State {
 		}
 	}
 	public State(State s){
+		redScore   = s.getRedScore();
+		greenScore = s.getGreenScore();
 		for (int i=0; i<8; i++){
 			for (int j =0; j<8; j++){
 				state[i][j] = s.getSquareContent(i, j).clone();

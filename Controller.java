@@ -122,7 +122,7 @@ public class Controller {
 		Node newMove;
 		int alpha = Integer.MIN_VALUE;
 		int beta  = Integer.MAX_VALUE;
-		int depth = 2;
+		int depth = 0;
 		int bestScore = Integer.MIN_VALUE;
 		
 		ArrayList<Node> futures = currState.getChildren(false);
